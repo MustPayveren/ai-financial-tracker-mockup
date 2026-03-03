@@ -265,4 +265,17 @@ footer{
   color: var(--muted);
   font-size: 12px;
 }
-X
+
+@media (max-width: 600px){
+  nav .nav-links{
+    gap:6px;
+  }
+
+  .kpi-value{
+    font-size:20px;
+  }
+
+  h1{
+    font-size:22px;
+  }
+}

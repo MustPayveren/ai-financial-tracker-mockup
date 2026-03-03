@@ -25,7 +25,9 @@
   <main class="container">
     <header class="page-head">
       <h1>Reports</h1>
-      <p class="sub">Category totals + insights (stub). Real totals will come from localStorage next.</p>
+      <p class="sub">Spending by category + AI insight (calculated from saved transactions).</p>
+
+      <!-- Month controls -->
       <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn" id="btnThisMonth">This month</button>
         <button class="btn" id="btnLastMonth">Last month</button>
@@ -34,120 +36,116 @@
     </header>
 
     <section class="grid cols-2">
-      <div class="panel pad">
-        <h2 style="margin-top:0;">Spending by Category (stub)</h2>
-        <div class="list">
-          <div class="item">
-            <div><strong>Food</strong><div class="small">Monthly total</div></div>
-            <div><strong>$320</strong></div>
-          </div>
-          <div class="item">
-            <div><strong>Transport</strong><div class="small">Monthly total</div></div>
-            <div><strong>$120</strong></div>
-          </div>
-          <div class="item">
-            <div><strong>Shopping</strong><div class="small">Monthly total</div></div>
-            <div><strong>$210</strong></div>
-          </div>
-        </div>
+      <!-- LEFT: Category totals -->
+      <div class="panel pad" id="leftPanel">
+        <h2 style="margin-top:0;">Spending by Category</h2>
+        <div class="list" id="catList"></div>
       </div>
 
-      <div class="panel pad">
-        <h2 style="margin-top:0;">AI Insight (stub)</h2>
-        <div class="card">
-          <div class="small">Pattern</div>
-          <div style="margin-top:6px;">
-            Your top spending category is <strong>Food</strong>. Consider meal-prepping to reduce costs.
-          </div>
+      <!-- RIGHT: AI Insight -->
+      <div class="panel pad" id="rightPanel">
+        <h2 style="margin-top:0;">AI Insight</h2>
+        <div class="card" id="insightCard">
+          <div class="small">AI Insight</div>
+          <div style="margin-top:6px;">—</div>
         </div>
 
         <div style="margin-top:14px;">
-          <button class="btn" id="btnRefresh">Refresh insights (stub)</button>
+          <button class="btn" id="btnRefresh">Refresh reports</button>
           <div class="msg" id="msg"></div>
         </div>
       </div>
     </section>
 
     <footer class="container">
-      Next step: calculate these values from saved transactions.
+      Mock-up only • Totals computed in JavaScript • Data stored in localStorage
     </footer>
   </main>
 
   <script src="assets/app.js"></script>
   <script>
-  setActiveNav("reports");
-  seedDemoDataIfEmpty();
+    setActiveNav("reports");
+    seedDemoDataIfEmpty();
 
-  //const mk = currentMonthKey();
-  let mk = currentMonthKey();
-  const pill = document.getElementById("pillMonth");
+    // Month state
+    let mk = currentMonthKey();
+    const pill = document.getElementById("pillMonth");
 
-  function setMonthLabel() {
-    pill.textContent = mk;
-  }
-  setMonthLabel();
+    function setMonthLabel() {
+      pill.textContent = mk;
+    }
+    setMonthLabel();
 
-  function renderReports() {
-    const txs = getTransactions();
-    const totals = calcCategoryTotals(txs, mk);
+    function renderReports() {
+      const txs = getTransactions();
 
-    // Left panel list (replace stub list)
-    const leftPanel = document.querySelector(".panel.pad");
-    const listWrap = leftPanel.querySelector(".list");
-    listWrap.innerHTML = "";
+      // Calculate category totals (expenses only)
+      const totals = calcCategoryTotals(txs, mk);
+      const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
 
-    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+      // TOP CATEGORY (5C)
+      const topCategory = entries.length > 0 ? entries[0][0] : null;
 
-    if (entries.length === 0) {
-      listWrap.innerHTML = `<div class="msg">No expense data this month yet.</div>`;
-    } else {
-      for (const [cat, amt] of entries) {
-        const row = document.createElement("div");
-        row.className = "item";
-        row.innerHTML = `
-          <div><strong>${cat}</strong><div class="small">Monthly total</div></div>
-          <div><strong>${formatMoney(amt)}</strong></div>
-        `;
-        listWrap.appendChild(row);
+      // Render category list
+      const catList = document.getElementById("catList");
+      catList.innerHTML = "";
+
+      if (entries.length === 0) {
+        catList.innerHTML = `<div class="msg">No expense data for this month.</div>`;
+      } else {
+        for (const [cat, amt] of entries) {
+          const isTop = cat === topCategory;
+
+          const row = document.createElement("div");
+          row.className = "item";
+          row.innerHTML = `
+            <div>
+              <strong>${cat}</strong>
+              ${isTop ? '<span class="pill expense" style="margin-left:6px;">Top</span>' : ''}
+              <div class="small">Monthly total</div>
+            </div>
+            <div><strong>${formatMoney(amt)}</strong></div>
+          `;
+          catList.appendChild(row);
+        }
       }
+
+      // Render AI insight (based on data)
+      const insights = buildInsights(txs, mk);
+      const insightCard = document.getElementById("insightCard");
+
+      insightCard.innerHTML = `
+        <div class="small">${insights[0]?.title || "AI Insight"}</div>
+        <div style="margin-top:6px;">${insights[0]?.text || "—"}</div>
+      `;
     }
 
-    // Right panel AI insight card (replace stub text)
-    const rightPanel = document.querySelectorAll(".panel.pad")[1];
-    const insightCard = rightPanel.querySelector(".card");
-    const insights = buildInsights(txs, mk);
+    // Buttons
+    document.getElementById("btnRefresh").addEventListener("click", () => {
+      renderReports();
+      const msg = document.getElementById("msg");
+      msg.className = "msg ok";
+      msg.textContent = "Reports refreshed from saved transactions.";
+    });
 
-    insightCard.innerHTML = `
-      <div class="small">${insights[0]?.title || "AI Insight"}</div>
-      <div style="margin-top:6px;">${insights[0]?.text || "—"}</div>
-    `;
-  }
+    document.getElementById("btnThisMonth").addEventListener("click", () => {
+      mk = currentMonthKey();
+      setMonthLabel();
+      renderReports();
+    });
 
-  document.getElementById("btnRefresh").addEventListener("click", () => {
+    document.getElementById("btnLastMonth").addEventListener("click", () => {
+      const now = new Date();
+      const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const y = last.getFullYear();
+      const m = String(last.getMonth() + 1).padStart(2, "0");
+      mk = `${y}-${m}`;
+      setMonthLabel();
+      renderReports();
+    });
+
+    // Initial render
     renderReports();
-    const msg = document.getElementById("msg");
-    msg.className = "msg ok";
-    msg.textContent = "Reports refreshed from saved transactions.";
-  });
-
-  // Initial render
-  renderReports();
-
-  document.getElementById("btnThisMonth").addEventListener("click", () => {
-    mk = currentMonthKey();
-    setMonthLabel();
-    renderReports();
-  });
-
-  document.getElementById("btnLastMonth").addEventListener("click", () => {
-    const now = new Date();
-    const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const y = last.getFullYear();
-    const m = String(last.getMonth() + 1).padStart(2, "0");
-    mk = `${y}-${m}`;
-    setMonthLabel();
-    renderReports();
-  });
-</script>
+  </script>
 </body>
 </html>
