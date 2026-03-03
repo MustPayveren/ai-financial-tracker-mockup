@@ -25,23 +25,23 @@
   <main class="container">
     <header class="page-head">
       <h1>Dashboard</h1>
-      <p class="sub" id="helloSub">Monthly overview + AI insights (stub)</p>
+      <p class="sub" id="helloSub">Monthly overview + AI insights</p>
     </header>
 
     <section class="grid cols-3">
       <div class="card">
         <div class="kpi">Income (this month)</div>
-        <div class="kpi-value" id="kpiIncome">$2,000</div>
-        <div class="kpi-hint">Dummy total</div>
+        <div class="kpi-value" id="kpiIncome">$0.00</div>
+        <div class="kpi-hint">Calculated from saved data</div>
       </div>
       <div class="card">
         <div class="kpi">Expenses (this month)</div>
-        <div class="kpi-value" id="kpiExpense">$1,450</div>
-        <div class="kpi-hint">Dummy total</div>
+        <div class="kpi-value" id="kpiExpense">$0.00</div>
+        <div class="kpi-hint">Calculated from saved data</div>
       </div>
       <div class="card">
         <div class="kpi">Remaining</div>
-        <div class="kpi-value" id="kpiRemain">$550</div>
+        <div class="kpi-value" id="kpiRemain">$0.00</div>
         <div class="kpi-hint">Income − Expenses</div>
       </div>
     </section>
@@ -49,47 +49,30 @@
     <div style="height:14px;"></div>
 
     <section class="grid cols-2">
+      <!-- LEFT: Recent Transactions -->
       <div class="panel pad">
-        <h2 style="margin-top:0;">Recent Transactions (stub)</h2>
-        <div class="list" id="txList">
-          <div class="item">
-            <div>
-              <div><strong>Groceries</strong> <span class="pill expense">expense</span></div>
-              <div class="small">Feb 28 • Trader Joe's</div>
-            </div>
-            <div><strong>-$52.30</strong></div>
-          </div>
-
-          <div class="item">
-            <div>
-              <div><strong>Paycheck</strong> <span class="pill income">income</span></div>
-              <div class="small">Feb 27 • Part-time job</div>
-            </div>
-            <div><strong>+$450.00</strong></div>
-          </div>
-        </div>
+        <h2 style="margin-top:0;">Recent Transactions</h2>
+        <div class="list" id="txList"></div>
 
         <div style="margin-top:14px;">
           <a class="btn primary" href="add.html">+ Add a transaction</a>
         </div>
       </div>
 
-      <div class="panel pad">
-        <h2 style="margin-top:0;">AI Insights (stub)</h2>
-        <div class="card">
-          <div class="small">Insight #1</div>
-          <div style="margin-top:6px;">
-            You’re spending a lot on <strong>Food</strong>. Consider setting a weekly cap.
-          </div>
+      <!-- RIGHT: AI + Actions -->
+      <div class="panel pad" id="aiPanel">
+        <h2 style="margin-top:0;">AI Insights</h2>
+
+        <div class="card" id="insightCard1">
+          <div class="small">Insight</div>
+          <div style="margin-top:6px;">—</div>
         </div>
 
         <div style="height:10px;"></div>
 
-        <div class="card">
-          <div class="small">Insight #2</div>
-          <div style="margin-top:6px;">
-            Try using the <strong>Reports</strong> page to review category totals.
-          </div>
+        <div class="card" id="insightCard2">
+          <div class="small">Tip</div>
+          <div style="margin-top:6px;">—</div>
         </div>
 
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -98,86 +81,137 @@
         </div>
 
         <div class="msg" id="msg"></div>
+
+        <hr style="border:0; border-top:1px solid var(--line); margin:16px 0;">
+
+        <h3 style="margin:0 0 10px;">Quick actions</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="btnClearData">Clear data</button>
+          <button class="btn" id="btnReseed">Reseed demo</button>
+          <button class="btn" id="btnExport">Export JSON (stub)</button>
+        </div>
+
+        <div class="msg" id="msg2"></div>
       </div>
     </section>
 
     <footer class="container">
-      Mock-up only • Data and AI are simulated for demonstration
+      Mock-up only • Transactions stored in localStorage • “AI” insights are rule-based
     </footer>
   </main>
 
   <script src="assets/app.js"></script>
   <script>
-  setActiveNav("dashboard");
-  seedDemoDataIfEmpty();
+    setActiveNav("dashboard");
+    seedDemoDataIfEmpty();
 
-  const user = getUserStub();
-  const sub = document.getElementById("helloSub");
-  if (user?.email) sub.textContent = `Signed in as ${user.email} • Monthly overview + AI insights`;
-
-  const txs = getTransactions();
-  const mk = currentMonthKey();
-
-  // KPI render
-  const summary = calcMonthlySummary(txs, mk);
-  document.getElementById("kpiIncome").textContent = formatMoney(summary.income);
-  document.getElementById("kpiExpense").textContent = formatMoney(summary.expense);
-  document.getElementById("kpiRemain").textContent = formatMoney(summary.remaining);
-
-  // Recent transactions render (top 6)
-  const list = document.getElementById("txList");
-  list.innerHTML = "";
-
-  const recent = txs.slice(0, 6);
-  if (recent.length === 0) {
-    list.innerHTML = `<div class="msg">No transactions yet. Add one!</div>`;
-  } else {
-    for (const t of recent) {
-      const pillClass = t.type === "income" ? "pill income" : "pill expense";
-      const sign = t.type === "income" ? "+" : "-";
-      const amt = `${sign}${formatMoney(t.amount)}`;
-
-      const el = document.createElement("div");
-      el.className = "item";
-      el.innerHTML = `
-        <div>
-          <div><strong>${t.category}</strong> <span class="${pillClass}">${t.type}</span></div>
-          <div class="small">${safeDateLabel(t.date)} • ${t.note ? t.note : "—"}</div>
-        </div>
-        <div><strong>${amt}</strong></div>
-      `;
-      list.appendChild(el);
+    // Header subtitle
+    const user = getUserStub();
+    const sub = document.getElementById("helloSub");
+    if (user?.email) {
+      sub.textContent = `Signed in as ${user.email} • Monthly overview + AI insights`;
     }
-  }
 
-  // AI Insights render
-  const insightsBox = document.querySelector(".panel.pad:nth-of-type(2)"); // right panel (AI)
-  // We'll target the first two cards inside it (simple approach)
-  const insightCards = insightsBox.querySelectorAll(".card");
-  const insights = buildInsights(txs, mk);
+    const txs = getTransactions();
+    const mk = currentMonthKey();
 
-  // Ensure we have at least 2 cards to update (page already has 2)
-  if (insightCards[0]) {
-    insightCards[0].innerHTML = `
-      <div class="small">${insights[0]?.title || "Insight"}</div>
-      <div style="margin-top:6px;">${insights[0]?.text || "—"}</div>
-    `;
-  }
-  if (insightCards[1]) {
-    insightCards[1].innerHTML = `
-      <div class="small">${insights[1]?.title || "Tip"}</div>
-      <div style="margin-top:6px;">${insights[1]?.text || "—"}</div>
-    `;
-  }
+    // KPI render
+    const summary = calcMonthlySummary(txs, mk);
+    document.getElementById("kpiIncome").textContent = formatMoney(summary.income);
+    document.getElementById("kpiExpense").textContent = formatMoney(summary.expense);
+    document.getElementById("kpiRemain").textContent = formatMoney(summary.remaining);
 
-  // Sign out
-  document.getElementById("btnSignOut").addEventListener("click", () => {
-    signOutStub();
-    const msg = document.getElementById("msg");
-    msg.className = "msg ok";
-    msg.textContent = "Signed out. Returning to login...";
-    setTimeout(() => (window.location.href = "index.html"), 700);
-  });
-</script>
+    // Recent transactions render (top 6)
+    const list = document.getElementById("txList");
+    list.innerHTML = "";
+
+    const recent = txs.slice(0, 6);
+    if (recent.length === 0) {
+      list.innerHTML = `<div class="msg">No transactions yet. Add one!</div>`;
+    } else {
+      for (const t of recent) {
+        const pillClass = t.type === "income" ? "pill income" : "pill expense";
+        const sign = t.type === "income" ? "+" : "-";
+        const amt = `${sign}${formatMoney(t.amount)}`;
+
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div>
+            <div><strong>${t.category}</strong> <span class="${pillClass}">${t.type}</span></div>
+            <div class="small">${safeDateLabel(t.date)} • ${t.note ? t.note : "—"}</div>
+          </div>
+          <div><strong>${amt}</strong></div>
+        `;
+        list.appendChild(el);
+      }
+    }
+
+    // AI Insights render
+    const insights = buildInsights(txs, mk);
+    const c1 = document.getElementById("insightCard1");
+    const c2 = document.getElementById("insightCard2");
+
+    if (c1) {
+      c1.innerHTML = `
+        <div class="small">${insights[0]?.title || "Insight"}</div>
+        <div style="margin-top:6px;">${insights[0]?.text || "—"}</div>
+      `;
+    }
+    if (c2) {
+      c2.innerHTML = `
+        <div class="small">${insights[1]?.title || "Tip"}</div>
+        <div style="margin-top:6px;">${insights[1]?.text || "—"}</div>
+      `;
+    }
+
+    // Sign out
+    document.getElementById("btnSignOut").addEventListener("click", () => {
+      signOutStub();
+      const msg = document.getElementById("msg");
+      msg.className = "msg ok";
+      msg.textContent = "Signed out. Returning to login...";
+      setTimeout(() => (window.location.href = "index.html"), 700);
+    });
+
+    // Quick actions (safe)
+    const msg2 = document.getElementById("msg2");
+    const btnClear = document.getElementById("btnClearData");
+    const btnReseed = document.getElementById("btnReseed");
+    const btnExport = document.getElementById("btnExport");
+
+    if (btnClear) {
+      btnClear.addEventListener("click", () => {
+        clearAllTransactions();
+        msg2.className = "msg ok";
+        msg2.textContent = "All transactions cleared. Refreshing...";
+        setTimeout(() => window.location.reload(), 500);
+      });
+    }
+
+    if (btnReseed) {
+      btnReseed.addEventListener("click", () => {
+        reseedDemo();
+        msg2.className = "msg ok";
+        msg2.textContent = "Demo data reloaded. Refreshing...";
+        setTimeout(() => window.location.reload(), 500);
+      });
+    }
+
+    if (btnExport) {
+      btnExport.addEventListener("click", async () => {
+        const json = exportTransactionsJSON();
+        try {
+          await navigator.clipboard.writeText(json);
+          msg2.className = "msg ok";
+          msg2.textContent = "Export copied to clipboard (JSON).";
+        } catch {
+          msg2.className = "msg";
+          msg2.textContent = "Export ready (could not auto-copy). Open DevTools Console to view.";
+          console.log(json);
+        }
+      });
+    }
+  </script>
 </body>
 </html>

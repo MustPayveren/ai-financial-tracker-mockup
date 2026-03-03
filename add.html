@@ -88,6 +88,27 @@
   // Pre-fill date with today
   document.getElementById("date").valueAsDate = new Date();
 
+  const typeEl = document.getElementById("type");
+  const catEl = document.getElementById("category");
+
+  const expenseCats = ["Food", "Rent", "Transport", "Shopping", "Utilities", "Entertainment", "Other"];
+  const incomeCats = ["Paycheck", "Scholarship", "Gift", "Refund", "Other"];
+
+  function renderCategories() {
+    const isIncome = typeEl.value === "income";
+    const cats = isIncome ? incomeCats : expenseCats;
+
+    catEl.innerHTML = "";
+    for (const c of cats) {
+      const opt = document.createElement("option");
+      opt.textContent = c;
+      catEl.appendChild(opt);
+    }
+  }
+
+  renderCategories();
+  typeEl.addEventListener("change", renderCategories);
+
   document.getElementById("btnSave").addEventListener("click", () => {
     const type = document.getElementById("type").value;
     const category = document.getElementById("category").value;

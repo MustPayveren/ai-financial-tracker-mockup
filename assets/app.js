@@ -192,3 +192,18 @@ function buildInsights(txs, yyyymm) {
 
   return insights;
 }
+
+// ===== Extra UX helpers =====
+function clearAllTransactions() {
+  localStorage.removeItem(TX_KEY);
+}
+
+function exportTransactionsJSON() {
+  const txs = getTransactions();
+  return JSON.stringify(txs, null, 2);
+}
+
+function reseedDemo() {
+  clearAllTransactions();
+  seedDemoDataIfEmpty();
+}
