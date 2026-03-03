@@ -82,16 +82,47 @@
 
   <script src="assets/app.js"></script>
   <script>
-    setActiveNav("add");
+  setActiveNav("add");
+  seedDemoDataIfEmpty();
 
-    // Pre-fill date with today (local)
-    document.getElementById("date").valueAsDate = new Date();
+  // Pre-fill date with today
+  document.getElementById("date").valueAsDate = new Date();
 
-    document.getElementById("btnSave").addEventListener("click", () => {
-      const msg = document.getElementById("msg");
-      msg.className = "msg ok";
-      msg.textContent = "Saved (stub). In the next step, this will store data and update dashboard.";
+  document.getElementById("btnSave").addEventListener("click", () => {
+    const type = document.getElementById("type").value;
+    const category = document.getElementById("category").value;
+    const amount = Number(document.getElementById("amount").value);
+    const date = document.getElementById("date").value;
+    const note = document.getElementById("note").value.trim();
+
+    const msg = document.getElementById("msg");
+
+    // Simple validation
+    if (!date) {
+      msg.className = "msg bad";
+      msg.textContent = "Please select a date.";
+      return;
+    }
+    if (!amount || amount <= 0) {
+      msg.className = "msg bad";
+      msg.textContent = "Please enter a valid amount greater than 0.";
+      return;
+    }
+
+    addTransaction({
+      id: crypto.randomUUID(),
+      type,
+      category,
+      amount,
+      date,
+      note
     });
-  </script>
+
+    msg.className = "msg ok";
+    msg.textContent = "Saved! Redirecting to Dashboard...";
+
+    setTimeout(() => (window.location.href = "dashboard.html"), 700);
+  });
+</script>
 </body>
 </html>

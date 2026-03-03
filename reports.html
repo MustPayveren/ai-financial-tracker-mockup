@@ -70,13 +70,56 @@
 
   <script src="assets/app.js"></script>
   <script>
-    setActiveNav("reports");
+  setActiveNav("reports");
+  seedDemoDataIfEmpty();
 
-    document.getElementById("btnRefresh").addEventListener("click", () => {
-      const msg = document.getElementById("msg");
-      msg.className = "msg ok";
-      msg.textContent = "Insights refreshed (stub). Next step will compute from real saved data.";
-    });
-  </script>
+  const mk = currentMonthKey();
+
+  function renderReports() {
+    const txs = getTransactions();
+    const totals = calcCategoryTotals(txs, mk);
+
+    // Left panel list (replace stub list)
+    const leftPanel = document.querySelector(".panel.pad");
+    const listWrap = leftPanel.querySelector(".list");
+    listWrap.innerHTML = "";
+
+    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+
+    if (entries.length === 0) {
+      listWrap.innerHTML = `<div class="msg">No expense data this month yet.</div>`;
+    } else {
+      for (const [cat, amt] of entries) {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `
+          <div><strong>${cat}</strong><div class="small">Monthly total</div></div>
+          <div><strong>${formatMoney(amt)}</strong></div>
+        `;
+        listWrap.appendChild(row);
+      }
+    }
+
+    // Right panel AI insight card (replace stub text)
+    const rightPanel = document.querySelectorAll(".panel.pad")[1];
+    const insightCard = rightPanel.querySelector(".card");
+    const insights = buildInsights(txs, mk);
+
+    insightCard.innerHTML = `
+      <div class="small">${insights[0]?.title || "AI Insight"}</div>
+      <div style="margin-top:6px;">${insights[0]?.text || "—"}</div>
+    `;
+  }
+
+  document.getElementById("btnRefresh").addEventListener("click", () => {
+    renderReports();
+    const msg = document.getElementById("msg");
+    msg.className = "msg ok";
+    msg.textContent = "Reports refreshed from saved transactions.";
+  });
+
+  // Initial render
+  renderReports();
+</script>
 </body>
 </html>
