@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Financial Tracker - Mockup</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div>AI Financial Tracker</div>
+      </div>
+      <div class="nav-links">
+        <a class="navlink active" href="index.html" data-page="login">Login</a>
+        <a class="navlink" href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a class="navlink" href="add.html" data-page="add">Add</a>
+        <a class="navlink" href="reports.html" data-page="reports">Reports</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-head">
+      <h1>Welcome</h1>
+      <p class="sub">
+        This is a working mock-up (no real backend). Sign in to see the app flow.
+      </p>
+    </header>
+
+    <section class="panel pad">
+      <h2 style="margin-top:0;">Sign in (stub)</h2>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="student@example.com" />
+
+      <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+        <button class="btn primary" id="btnSignIn">Sign in</button>
+        <button class="btn" id="btnClear">Clear user</button>
+      </div>
+
+      <div class="msg" id="msg"></div>
+    </section>
+
+    <footer class="container">
+      Mock-up only • HTML/CSS/JS • Data will be simulated/stored locally later
+    </footer>
+  </main>
+
+  <script src="assets/app.js"></script>
+  <script>
+    // Page logic (stub)
+    const msg = document.getElementById("msg");
+    const email = document.getElementById("email");
+
+    document.getElementById("btnSignIn").addEventListener("click", () => {
+      const val = email.value.trim();
+      if (!val) {
+        msg.className = "msg bad";
+        msg.textContent = "Please enter an email to continue.";
+        return;
+      }
+      signInStub(val);
+      msg.className = "msg ok";
+      msg.textContent = "Signed in! Redirecting to Dashboard...";
+      setTimeout(() => (window.location.href = "dashboard.html"), 700);
+    });
+
+    document.getElementById("btnClear").addEventListener("click", () => {
+      signOutStub();
+      msg.className = "msg";
+      msg.textContent = "Cleared stub user.";
+    });
+  </script>
+</body>
+</html>

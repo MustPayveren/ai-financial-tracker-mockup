@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports • AI Financial Tracker</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div>AI Financial Tracker</div>
+      </div>
+      <div class="nav-links">
+        <a class="navlink" href="index.html" data-page="login">Login</a>
+        <a class="navlink" href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a class="navlink" href="add.html" data-page="add">Add</a>
+        <a class="navlink" href="reports.html" data-page="reports">Reports</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-head">
+      <h1>Reports</h1>
+      <p class="sub">Category totals + insights (stub). Real totals will come from localStorage next.</p>
+    </header>
+
+    <section class="grid cols-2">
+      <div class="panel pad">
+        <h2 style="margin-top:0;">Spending by Category (stub)</h2>
+        <div class="list">
+          <div class="item">
+            <div><strong>Food</strong><div class="small">Monthly total</div></div>
+            <div><strong>$320</strong></div>
+          </div>
+          <div class="item">
+            <div><strong>Transport</strong><div class="small">Monthly total</div></div>
+            <div><strong>$120</strong></div>
+          </div>
+          <div class="item">
+            <div><strong>Shopping</strong><div class="small">Monthly total</div></div>
+            <div><strong>$210</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel pad">
+        <h2 style="margin-top:0;">AI Insight (stub)</h2>
+        <div class="card">
+          <div class="small">Pattern</div>
+          <div style="margin-top:6px;">
+            Your top spending category is <strong>Food</strong>. Consider meal-prepping to reduce costs.
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <button class="btn" id="btnRefresh">Refresh insights (stub)</button>
+          <div class="msg" id="msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="container">
+      Next step: calculate these values from saved transactions.
+    </footer>
+  </main>
+
+  <script src="assets/app.js"></script>
+  <script>
+    setActiveNav("reports");
+
+    document.getElementById("btnRefresh").addEventListener("click", () => {
+      const msg = document.getElementById("msg");
+      msg.className = "msg ok";
+      msg.textContent = "Insights refreshed (stub). Next step will compute from real saved data.";
+    });
+  </script>
+</body>
+</html>

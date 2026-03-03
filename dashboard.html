@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard • AI Financial Tracker</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div>AI Financial Tracker</div>
+      </div>
+      <div class="nav-links">
+        <a class="navlink" href="index.html" data-page="login">Login</a>
+        <a class="navlink" href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a class="navlink" href="add.html" data-page="add">Add</a>
+        <a class="navlink" href="reports.html" data-page="reports">Reports</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-head">
+      <h1>Dashboard</h1>
+      <p class="sub" id="helloSub">Monthly overview + AI insights (stub)</p>
+    </header>
+
+    <section class="grid cols-3">
+      <div class="card">
+        <div class="kpi">Income (this month)</div>
+        <div class="kpi-value" id="kpiIncome">$2,000</div>
+        <div class="kpi-hint">Dummy total</div>
+      </div>
+      <div class="card">
+        <div class="kpi">Expenses (this month)</div>
+        <div class="kpi-value" id="kpiExpense">$1,450</div>
+        <div class="kpi-hint">Dummy total</div>
+      </div>
+      <div class="card">
+        <div class="kpi">Remaining</div>
+        <div class="kpi-value" id="kpiRemain">$550</div>
+        <div class="kpi-hint">Income − Expenses</div>
+      </div>
+    </section>
+
+    <div style="height:14px;"></div>
+
+    <section class="grid cols-2">
+      <div class="panel pad">
+        <h2 style="margin-top:0;">Recent Transactions (stub)</h2>
+        <div class="list" id="txList">
+          <div class="item">
+            <div>
+              <div><strong>Groceries</strong> <span class="pill expense">expense</span></div>
+              <div class="small">Feb 28 • Trader Joe's</div>
+            </div>
+            <div><strong>-$52.30</strong></div>
+          </div>
+
+          <div class="item">
+            <div>
+              <div><strong>Paycheck</strong> <span class="pill income">income</span></div>
+              <div class="small">Feb 27 • Part-time job</div>
+            </div>
+            <div><strong>+$450.00</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <a class="btn primary" href="add.html">+ Add a transaction</a>
+        </div>
+      </div>
+
+      <div class="panel pad">
+        <h2 style="margin-top:0;">AI Insights (stub)</h2>
+        <div class="card">
+          <div class="small">Insight #1</div>
+          <div style="margin-top:6px;">
+            You’re spending a lot on <strong>Food</strong>. Consider setting a weekly cap.
+          </div>
+        </div>
+
+        <div style="height:10px;"></div>
+
+        <div class="card">
+          <div class="small">Insight #2</div>
+          <div style="margin-top:6px;">
+            Try using the <strong>Reports</strong> page to review category totals.
+          </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn" href="reports.html">View reports</a>
+          <button class="btn" id="btnSignOut">Sign out</button>
+        </div>
+
+        <div class="msg" id="msg"></div>
+      </div>
+    </section>
+
+    <footer class="container">
+      Mock-up only • Data and AI are simulated for demonstration
+    </footer>
+  </main>
+
+  <script src="assets/app.js"></script>
+  <script>
+    setActiveNav("dashboard");
+
+    const user = getUserStub();
+    const sub = document.getElementById("helloSub");
+    if (user?.email) sub.textContent = `Signed in as ${user.email} • Monthly overview + AI insights (stub)`;
+
+    document.getElementById("btnSignOut").addEventListener("click", () => {
+      signOutStub();
+      const msg = document.getElementById("msg");
+      msg.className = "msg ok";
+      msg.textContent = "Signed out. Returning to login...";
+      setTimeout(() => (window.location.href = "index.html"), 700);
+    });
+  </script>
+</body>
+</html>
